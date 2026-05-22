@@ -1,0 +1,44 @@
+name: Feature request
+description: Propose a focused improvement
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What workflow should this make possible?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed solution
+      description: Describe the desired behavior and user-facing API.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives_considered
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you consider?
+    validations:
+      required: false
+  - type: dropdown
+    id: related_tool_family
+    attributes:
+      label: Related tool family
+      options:
+        - notebooks
+        - sources
+        - chat
+        - research
+        - artifacts
+        - language
+        - admin
+        - compatibility
+        - transport
+        - authentication
+        - docker
+    validations:
+      required: true

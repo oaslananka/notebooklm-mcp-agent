@@ -1,0 +1,152 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "notebooklm-mcp-agent"
+version = "1.0.0"
+description = "MCP server and CLI for NotebookLM workflows."
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+license = "MIT"
+authors = [{ name = "oaslananka", email = "169144131+oaslananka@users.noreply.github.com" }]
+maintainers = [{ name = "oaslananka", email = "169144131+oaslananka@users.noreply.github.com" }]
+keywords = [
+  "mcp",
+  "model-context-protocol",
+  "notebooklm",
+  "fastmcp",
+  "notebooklm-py",
+  "claude",
+  "chatgpt",
+  "openai",
+  "llm-tools",
+  "google-notebooklm",
+  "ai-tools",
+  "podcast-generation",
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+  "Typing :: Typed",
+]
+dependencies = [
+  "aiosqlite>=0.20",
+  "authlib>=1.3",
+  "fastmcp>=3.3.1,<4.0",
+  "httpx>=0.27",
+  "mcp>=1.27.1,<2.0",
+  "notebooklm-py>=0.4.1,<0.5",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.4",
+  "starlette>=0.37",
+  "structlog>=24.1",
+  "tenacity>=9",
+  "rich>=13.9",
+  "shellingham>=1.5",
+  "typer>=0.12",
+  "uvicorn[standard]>=0.30",
+]
+
+[project.optional-dependencies]
+browser = ["playwright>=1.45"]
+dev = [
+  "bandit[toml]>=1.8",
+  "build>=1.2",
+  "codespell>=2.4",
+  "cyclonedx-bom>=6.0",
+  "deptry>=0.23",
+  "freezegun>=1.5",
+  "hypothesis>=6.100",
+  "mkdocs-material>=9.5",
+  "mkdocstrings[python]>=0.26",
+  "mypy>=2.1",
+  "pip-audit>=2.10",
+  "pre-commit>=3.7",
+  "pytest>=8.2",
+  "pytest-asyncio>=0.23",
+  "pytest-cov>=5.0",
+  "pytest-httpx>=0.30",
+  "respx>=0.21",
+  "ruff>=0.15.13",
+  "vulture>=2.14",
+  "yamllint>=1.37",
+  "zizmor>=1.16",
+]
+
+[project.urls]
+Homepage = "https://github.com/oaslananka/notebooklm-mcp-agent"
+Repository = "https://github.com/oaslananka/notebooklm-mcp-agent"
+Issues = "https://github.com/oaslananka/notebooklm-mcp-agent/issues"
+Changelog = "https://github.com/oaslananka/notebooklm-mcp-agent/blob/main/CHANGELOG.md"
+Documentation = "https://oaslananka.github.io/notebooklm-mcp-agent/"
+
+[project.scripts]
+notebooklm-agent = "notebooklm_mcp_agent.cli:app"
+
+[tool.uv]
+# opentelemetry-api 1.42.0 regressed to a stdlib importlib.metadata path that emits
+# SelectableGroups deprecation warnings on Python 3.11 during FastMCP import.
+constraint-dependencies = ["opentelemetry-api<1.42"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/notebooklm_mcp_agent", "src/nlm_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/deploy",
+  "/scripts",
+  "/README.md",
+  "/LICENSE",
+  "/CHANGELOG.md",
+  "/pyproject.toml",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "PL", "RUF", "S"]
+ignore = ["PLR0913"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+disallow_untyped_defs = true
+warn_unused_ignores = true
+mypy_path = ["src", "stubs"]
+
+[[tool.mypy.overrides]]
+module = ["notebooklm", "notebooklm.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers -m 'not e2e' --basetemp=build --cov=src/notebooklm_mcp_agent --cov-report=term-missing --cov-report=xml --cov-fail-under=92"
+testpaths = ["tests"]
+markers = [
+  "e2e: tests that require live NotebookLM credentials and network access",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/notebooklm_mcp_agent"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

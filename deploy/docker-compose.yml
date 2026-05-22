@@ -1,0 +1,38 @@
+services:
+  notebooklm-agent:
+    image: ghcr.io/oaslananka/notebooklm-mcp-agent:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - notebooklm-agent-data:/home/appuser/.local/share/notebooklm-agent
+      - ${NOTEBOOKLM_AUTH_FILE:-~/.config/notebooklm-agent}:/home/appuser/.config/notebooklm-agent:${NOTEBOOKLM_AUTH_MOUNT_MODE:-rw}
+    environment:
+      NOTEBOOKLM_MCP_TRANSPORT: http
+      NOTEBOOKLM_MCP_AUTH_MODE: ${NOTEBOOKLM_MCP_AUTH_MODE:-bearer}
+      NOTEBOOKLM_MCP_BEARER_TOKEN: ${NOTEBOOKLM_MCP_BEARER_TOKEN:-}
+      NOTEBOOKLM_MCP_GITHUB_CLIENT_ID: ${NOTEBOOKLM_MCP_GITHUB_CLIENT_ID:-}
+      NOTEBOOKLM_MCP_GITHUB_CLIENT_SECRET: ${NOTEBOOKLM_MCP_GITHUB_CLIENT_SECRET:-}
+      NOTEBOOKLM_MCP_GITHUB_REDIRECT_PATH: ${NOTEBOOKLM_MCP_GITHUB_REDIRECT_PATH:-/auth/callback}
+      NOTEBOOKLM_MCP_OAUTH_REQUIRED_SCOPES: ${NOTEBOOKLM_MCP_OAUTH_REQUIRED_SCOPES:-read:user,user:email}
+      NOTEBOOKLM_MCP_OAUTH_ALLOWED_USERS: ${NOTEBOOKLM_MCP_OAUTH_ALLOWED_USERS:-oaslananka}
+      NOTEBOOKLM_MCP_BASE_URL: ${NOTEBOOKLM_MCP_BASE_URL:-}
+      NOTEBOOKLM_MCP_NOTEBOOKLM_AUTH_FILE: ${NOTEBOOKLM_MCP_NOTEBOOKLM_AUTH_FILE:-/home/appuser/.config/notebooklm-agent/notebooklm_auth.json}
+      NOTEBOOKLM_MCP_NOTEBOOKLM_AUTH_JSON: ${NOTEBOOKLM_MCP_NOTEBOOKLM_AUTH_JSON:-}
+      NOTEBOOKLM_MCP_LOG_LEVEL: ${NOTEBOOKLM_MCP_LOG_LEVEL:-INFO}
+      NOTEBOOKLM_MCP_LOG_FORMAT: json
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  notebooklm-agent-data:

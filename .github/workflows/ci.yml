@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  UV_VERSION: "0.11.15"
+
+jobs:
+  fast-lane:
+    name: CI / fast lane
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.11"
+      - name: Install uv
+        run: python -m pip install "uv==${UV_VERSION}"
+      - name: Install dependencies
+        run: uv sync --locked --extra dev --extra browser
+      - name: Lint
+        run: uv run ruff check .
+      - name: Format check
+        run: uv run ruff format --check .
+      - name: Typecheck
+        run: uv run mypy src tests
+      - name: Structural checks
+        run: |
+          uv run python scripts/check_owner_refs.py
+          uv run python scripts/check_forbidden_terms.py
+          uv run python scripts/check_no_secrets.py
+          uv run python scripts/check_config_docs.py
+          uv run python scripts/check_public_surface.py
+          uv run python scripts/check_tool_catalog.py
+          uv run python scripts/check_openapi_parity.py
+          uv run python scripts/check_architecture.py
+      - name: Dead-code scan
+        run: uv run vulture src tests scripts --min-confidence 90
+      - name: Unit tests
+        run: uv run pytest
+
+  test-matrix:
+    name: CI / python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        run: python -m pip install "uv==${UV_VERSION}"
+      - name: Install dependencies
+        run: uv sync --locked --python ${{ matrix.python-version }} --extra dev --extra browser
+      - name: Tests
+        run: uv run --python ${{ matrix.python-version }} pytest
+
+  build:
+    name: CI / build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [fast-lane, test-matrix]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.11"
+      - name: Install uv
+        run: python -m pip install "uv==${UV_VERSION}"
+      - name: Install dependencies
+        run: uv sync --locked --extra dev --extra browser
+      - name: Build distributions
+        run: uv run python -m build
+      - name: Smoke install wheel
+        run: |
+          python -m venv /tmp/notebooklm-agent-smoke
+          /tmp/notebooklm-agent-smoke/bin/python -m pip install dist/*.whl
+          /tmp/notebooklm-agent-smoke/bin/notebooklm-agent --version
+          /tmp/notebooklm-agent-smoke/bin/notebooklm-agent doctor --offline
+      - name: Docker build
+        run: docker build -f deploy/Dockerfile -t notebooklm-mcp-agent:ci .
+
+  ci-ok:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: ${{ always() && !cancelled() }}
+    needs: [fast-lane, test-matrix, build]
+    steps:
+      - name: Check required jobs
+        env:
+          FAST_LANE: ${{ needs.fast-lane.result }}
+          TEST_MATRIX: ${{ needs.test-matrix.result }}
+          BUILD: ${{ needs.build.result }}
+        run: |
+          test "$FAST_LANE" = "success"
+          test "$TEST_MATRIX" = "success"
+          test "$BUILD" = "success"

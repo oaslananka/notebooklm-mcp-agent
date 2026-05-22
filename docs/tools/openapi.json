@@ -1,0 +1,5944 @@
+{
+  "components": {
+    "schemas": {
+      "ArtifactCancelInput": {
+        "additionalProperties": false,
+        "description": "Input for `artifact.cancel`.",
+        "properties": {
+          "confirm": {
+            "default": false,
+            "title": "Confirm",
+            "type": "boolean"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "task_id": {
+            "minLength": 1,
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "task_id"
+        ],
+        "title": "ArtifactCancelInput",
+        "type": "object"
+      },
+      "ArtifactDeleteInput": {
+        "additionalProperties": false,
+        "description": "Input for `artifact.delete`.",
+        "properties": {
+          "artifact_id": {
+            "minLength": 1,
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "confirm": {
+            "default": false,
+            "title": "Confirm",
+            "type": "boolean"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "artifact_id"
+        ],
+        "title": "ArtifactDeleteInput",
+        "type": "object"
+      },
+      "ArtifactDownloadInput": {
+        "additionalProperties": false,
+        "description": "Input for `artifact.download`.",
+        "properties": {
+          "artifact_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Artifact Id"
+          },
+          "artifact_type": {
+            "enum": [
+              "audio",
+              "video",
+              "report",
+              "quiz",
+              "flashcards",
+              "mind_map",
+              "infographic",
+              "slide_deck",
+              "data_table"
+            ],
+            "title": "Artifact Type",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "output_format": {
+            "anyOf": [
+              {
+                "enum": [
+                  "json",
+                  "md",
+                  "markdown",
+                  "html",
+                  "pdf",
+                  "pptx"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Output Format"
+          },
+          "output_path": {
+            "minLength": 1,
+            "title": "Output Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "artifact_type",
+          "output_path"
+        ],
+        "title": "ArtifactDownloadInput",
+        "type": "object"
+      },
+      "ArtifactListInput": {
+        "additionalProperties": false,
+        "description": "Input for `artifact.list`.",
+        "properties": {
+          "artifact_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "audio",
+                  "video",
+                  "report",
+                  "quiz",
+                  "flashcards",
+                  "mind_map",
+                  "infographic",
+                  "slide_deck",
+                  "data_table"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Artifact Type"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "ArtifactListInput",
+        "type": "object"
+      },
+      "ArtifactStatusInput": {
+        "additionalProperties": false,
+        "description": "Input for artifact task status tools.",
+        "properties": {
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "task_id": {
+            "minLength": 1,
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "task_id"
+        ],
+        "title": "ArtifactStatusInput",
+        "type": "object"
+      },
+      "ArtifactWaitInput": {
+        "additionalProperties": false,
+        "description": "Input for `artifact.wait`.",
+        "properties": {
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "poll_interval_sec": {
+            "default": 15,
+            "minimum": 1,
+            "title": "Poll Interval Sec",
+            "type": "integer"
+          },
+          "task_id": {
+            "minLength": 1,
+            "title": "Task Id",
+            "type": "string"
+          },
+          "timeout_sec": {
+            "default": 600,
+            "minimum": 1,
+            "title": "Timeout Sec",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "task_id"
+        ],
+        "title": "ArtifactWaitInput",
+        "type": "object"
+      },
+      "AudioOverviewInput": {
+        "additionalProperties": false,
+        "description": "Input for `generate.audio_overview`.",
+        "properties": {
+          "audio_format": {
+            "default": "deep_dive",
+            "enum": [
+              "deep_dive",
+              "brief",
+              "critique",
+              "debate"
+            ],
+            "title": "Audio Format",
+            "type": "string"
+          },
+          "audio_length": {
+            "default": "default",
+            "enum": [
+              "short",
+              "default",
+              "long"
+            ],
+            "title": "Audio Length",
+            "type": "string"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Instructions"
+          },
+          "language": {
+            "default": "en",
+            "minLength": 1,
+            "title": "Language",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "AudioOverviewInput",
+        "type": "object"
+      },
+      "ChatAskInput": {
+        "additionalProperties": false,
+        "description": "Input for `chat.ask` and `chat.continue`.",
+        "properties": {
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Conversation Id"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "question"
+        ],
+        "title": "ChatAskInput",
+        "type": "object"
+      },
+      "ChatHistoryInput": {
+        "additionalProperties": false,
+        "description": "Input for `chat.history`.",
+        "properties": {
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Conversation Id"
+          },
+          "limit": {
+            "default": 100,
+            "maximum": 500,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "ChatHistoryInput",
+        "type": "object"
+      },
+      "CinematicVideoInput": {
+        "additionalProperties": false,
+        "description": "Input for `generate.cinematic_video`.",
+        "properties": {
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Instructions"
+          },
+          "language": {
+            "default": "en",
+            "minLength": 1,
+            "title": "Language",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "CinematicVideoInput",
+        "type": "object"
+      },
+      "ConfirmNotebookInput": {
+        "additionalProperties": false,
+        "description": "Input for destructive notebook tools.",
+        "properties": {
+          "confirm": {
+            "default": false,
+            "title": "Confirm",
+            "type": "boolean"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "ConfirmNotebookInput",
+        "type": "object"
+      },
+      "ConfirmSourceInput": {
+        "additionalProperties": false,
+        "description": "Input for destructive source tools.",
+        "properties": {
+          "confirm": {
+            "default": false,
+            "title": "Confirm",
+            "type": "boolean"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "source_id": {
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "source_id"
+        ],
+        "title": "ConfirmSourceInput",
+        "type": "object"
+      },
+      "ConversationStartInput": {
+        "additionalProperties": false,
+        "description": "Input for `chat.conversation_start`.",
+        "properties": {
+          "initial_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Initial Question"
+          },
+          "name": {
+            "default": "NotebookLM conversation",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "ConversationStartInput",
+        "type": "object"
+      },
+      "DataTableInput": {
+        "additionalProperties": false,
+        "description": "Input for `generate.data_table`.",
+        "properties": {
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Instructions"
+          },
+          "language": {
+            "default": "en",
+            "minLength": 1,
+            "title": "Language",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "DataTableInput",
+        "type": "object"
+      },
+      "FetchInput": {
+        "additionalProperties": false,
+        "description": "Input for ChatGPT-compatible `fetch`.",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "FetchInput",
+        "type": "object"
+      },
+      "InfographicInput": {
+        "additionalProperties": false,
+        "description": "Input for `generate.infographic`.",
+        "properties": {
+          "detail_level": {
+            "default": "standard",
+            "enum": [
+              "concise",
+              "standard",
+              "detailed"
+            ],
+            "title": "Detail Level",
+            "type": "string"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Instructions"
+          },
+          "language": {
+            "default": "en",
+            "minLength": 1,
+            "title": "Language",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "orientation": {
+            "default": "landscape",
+            "enum": [
+              "landscape",
+              "portrait",
+              "square"
+            ],
+            "title": "Orientation",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "InfographicInput",
+        "type": "object"
+      },
+      "LanguageSetInput": {
+        "additionalProperties": false,
+        "description": "Input for `language.set`.",
+        "properties": {
+          "confirm": {
+            "default": false,
+            "title": "Confirm",
+            "type": "boolean"
+          },
+          "language": {
+            "minLength": 1,
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "language"
+        ],
+        "title": "LanguageSetInput",
+        "type": "object"
+      },
+      "ListNotesInput": {
+        "additionalProperties": false,
+        "description": "Input for `chat.list_notes`.",
+        "properties": {
+          "limit": {
+            "default": 100,
+            "maximum": 500,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "ListNotesInput",
+        "type": "object"
+      },
+      "MindMapInput": {
+        "additionalProperties": false,
+        "description": "Input for `generate.mind_map`.",
+        "properties": {
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "MindMapInput",
+        "type": "object"
+      },
+      "NotebookCreateInput": {
+        "additionalProperties": false,
+        "description": "Input for `notebook.create`.",
+        "properties": {
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "NotebookCreateInput",
+        "type": "object"
+      },
+      "NotebookIdInput": {
+        "additionalProperties": false,
+        "description": "Input for notebook tools that target one notebook.",
+        "properties": {
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "NotebookIdInput",
+        "type": "object"
+      },
+      "NotebookListInput": {
+        "additionalProperties": false,
+        "description": "Input for `notebook.list`.",
+        "properties": {},
+        "title": "NotebookListInput",
+        "type": "object"
+      },
+      "NotebookRenameInput": {
+        "additionalProperties": false,
+        "description": "Input for `notebook.rename`.",
+        "properties": {
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "title"
+        ],
+        "title": "NotebookRenameInput",
+        "type": "object"
+      },
+      "NotebookShareInviteInput": {
+        "additionalProperties": false,
+        "description": "Input for `notebook.share_invite`.",
+        "properties": {
+          "confirm": {
+            "default": false,
+            "title": "Confirm",
+            "type": "boolean"
+          },
+          "email": {
+            "maxLength": 320,
+            "minLength": 3,
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "notify": {
+            "default": true,
+            "title": "Notify",
+            "type": "boolean"
+          },
+          "role": {
+            "default": "viewer",
+            "enum": [
+              "viewer",
+              "editor"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "welcome_message": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Welcome Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "email"
+        ],
+        "title": "NotebookShareInviteInput",
+        "type": "object"
+      },
+      "NotebookSharePublicInput": {
+        "additionalProperties": false,
+        "description": "Input for `notebook.share_public`.",
+        "properties": {
+          "confirm": {
+            "default": false,
+            "title": "Confirm",
+            "type": "boolean"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "public": {
+            "title": "Public",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "public"
+        ],
+        "title": "NotebookSharePublicInput",
+        "type": "object"
+      },
+      "QuizLikeInput": {
+        "additionalProperties": false,
+        "description": "Input shared by quiz and flashcards tools.",
+        "properties": {
+          "difficulty": {
+            "default": "medium",
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Instructions"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "quantity": {
+            "default": "standard",
+            "enum": [
+              "fewer",
+              "standard",
+              "more"
+            ],
+            "title": "Quantity",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "QuizLikeInput",
+        "type": "object"
+      },
+      "ReportInput": {
+        "additionalProperties": false,
+        "description": "Input for `generate.report`.",
+        "properties": {
+          "custom_prompt": {
+            "anyOf": [
+              {
+                "maxLength": 8000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Custom Prompt"
+          },
+          "extra_instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Extra Instructions"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Instructions"
+          },
+          "language": {
+            "default": "en",
+            "minLength": 1,
+            "title": "Language",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "report_format": {
+            "default": "briefing_doc",
+            "enum": [
+              "briefing_doc",
+              "study_guide",
+              "blog_post",
+              "custom"
+            ],
+            "title": "Report Format",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "ReportInput",
+        "type": "object"
+      },
+      "ResearchStartInput": {
+        "additionalProperties": false,
+        "description": "Input for research start tools.",
+        "properties": {
+          "mode": {
+            "default": "fast",
+            "enum": [
+              "fast",
+              "deep"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "query": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "query"
+        ],
+        "title": "ResearchStartInput",
+        "type": "object"
+      },
+      "ResearchWaitInput": {
+        "additionalProperties": false,
+        "description": "Input for `research.wait`.",
+        "properties": {
+          "auto_import": {
+            "default": false,
+            "title": "Auto Import",
+            "type": "boolean"
+          },
+          "max_sources": {
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Max Sources",
+            "type": "integer"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "poll_interval_sec": {
+            "default": 15,
+            "minimum": 1,
+            "title": "Poll Interval Sec",
+            "type": "integer"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Task Id"
+          },
+          "timeout_sec": {
+            "default": 600,
+            "minimum": 1,
+            "title": "Timeout Sec",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "ResearchWaitInput",
+        "type": "object"
+      },
+      "ReviseSlideInput": {
+        "additionalProperties": false,
+        "description": "Input for `artifact.revise_slide`.",
+        "properties": {
+          "artifact_id": {
+            "minLength": 1,
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "prompt": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "slide_index": {
+            "minimum": 0,
+            "title": "Slide Index",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "artifact_id",
+          "slide_index",
+          "prompt"
+        ],
+        "title": "ReviseSlideInput",
+        "type": "object"
+      },
+      "SaveToNotesInput": {
+        "additionalProperties": false,
+        "description": "Input for `chat.save_to_notes`.",
+        "properties": {
+          "content": {
+            "minLength": 1,
+            "title": "Content",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "title",
+          "content"
+        ],
+        "title": "SaveToNotesInput",
+        "type": "object"
+      },
+      "SearchInput": {
+        "additionalProperties": false,
+        "description": "Input for ChatGPT-compatible `search`.",
+        "properties": {
+          "limit": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "query": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "title": "SearchInput",
+        "type": "object"
+      },
+      "SlideDeckInput": {
+        "additionalProperties": false,
+        "description": "Input for `generate.slide_deck`.",
+        "properties": {
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Instructions"
+          },
+          "language": {
+            "default": "en",
+            "minLength": 1,
+            "title": "Language",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "slide_format": {
+            "default": "detailed_deck",
+            "enum": [
+              "detailed_deck",
+              "presenter_slides"
+            ],
+            "title": "Slide Format",
+            "type": "string"
+          },
+          "slide_length": {
+            "default": "default",
+            "enum": [
+              "default",
+              "short"
+            ],
+            "title": "Slide Length",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "SlideDeckInput",
+        "type": "object"
+      },
+      "SourceAddFileInput": {
+        "additionalProperties": false,
+        "description": "Input for `source.add_file`.",
+        "properties": {
+          "file_path": {
+            "minLength": 1,
+            "title": "File Path",
+            "type": "string"
+          },
+          "mime_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mime Type"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "wait": {
+            "default": false,
+            "title": "Wait",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "file_path"
+        ],
+        "title": "SourceAddFileInput",
+        "type": "object"
+      },
+      "SourceAddGDriveInput": {
+        "additionalProperties": false,
+        "description": "Input for `source.add_gdrive`.",
+        "properties": {
+          "file_id": {
+            "minLength": 1,
+            "title": "File Id",
+            "type": "string"
+          },
+          "mime_type": {
+            "default": "application/vnd.google-apps.document",
+            "title": "Mime Type",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "wait": {
+            "default": false,
+            "title": "Wait",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "file_id",
+          "title"
+        ],
+        "title": "SourceAddGDriveInput",
+        "type": "object"
+      },
+      "SourceAddTextInput": {
+        "additionalProperties": false,
+        "description": "Input for `source.add_text`.",
+        "properties": {
+          "content": {
+            "minLength": 1,
+            "title": "Content",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "wait": {
+            "default": false,
+            "title": "Wait",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "title",
+          "content"
+        ],
+        "title": "SourceAddTextInput",
+        "type": "object"
+      },
+      "SourceAddUrlInput": {
+        "additionalProperties": false,
+        "description": "Input for URL-like source ingestion.",
+        "properties": {
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "url": {
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1,
+            "title": "Url",
+            "type": "string"
+          },
+          "wait": {
+            "default": false,
+            "title": "Wait",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "url"
+        ],
+        "title": "SourceAddUrlInput",
+        "type": "object"
+      },
+      "SourceIdInput": {
+        "additionalProperties": false,
+        "description": "Input for source tools targeting one source.",
+        "properties": {
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "source_id": {
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "source_id"
+        ],
+        "title": "SourceIdInput",
+        "type": "object"
+      },
+      "SourceWaitInput": {
+        "additionalProperties": false,
+        "description": "Input for `source.wait`.",
+        "properties": {
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "poll_interval_sec": {
+            "default": 5,
+            "minimum": 1,
+            "title": "Poll Interval Sec",
+            "type": "integer"
+          },
+          "source_id": {
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          },
+          "timeout_sec": {
+            "default": 300,
+            "minimum": 1,
+            "title": "Timeout Sec",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "notebook_id",
+          "source_id"
+        ],
+        "title": "SourceWaitInput",
+        "type": "object"
+      },
+      "VideoOverviewInput": {
+        "additionalProperties": false,
+        "description": "Input for `generate.video_overview`.",
+        "properties": {
+          "instructions": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Instructions"
+          },
+          "language": {
+            "default": "en",
+            "minLength": 1,
+            "title": "Language",
+            "type": "string"
+          },
+          "notebook_id": {
+            "minLength": 1,
+            "title": "Notebook Id",
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ids"
+          },
+          "video_format": {
+            "default": "explainer",
+            "enum": [
+              "explainer",
+              "brief"
+            ],
+            "title": "Video Format",
+            "type": "string"
+          },
+          "video_style": {
+            "default": "auto_select",
+            "enum": [
+              "auto_select",
+              "custom",
+              "classic",
+              "whiteboard",
+              "kawaii",
+              "anime",
+              "watercolor",
+              "retro_print",
+              "heritage",
+              "paper_craft"
+            ],
+            "title": "Video Style",
+            "type": "string"
+          }
+        },
+        "required": [
+          "notebook_id"
+        ],
+        "title": "VideoOverviewInput",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "description": "Bearer authentication. Set NOTEBOOKLM_MCP_BEARER_TOKEN on the server.",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "oaslananka",
+      "url": "https://github.com/oaslananka/notebooklm-mcp-agent"
+    },
+    "description": "Programmatic access to Google NotebookLM via MCP. Manage notebooks, sources, generated audio/video/infographic artifacts, research tasks, and chat with notebook content.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "title": "NotebookLM MCP Server",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/tools/admin.health": {
+      "post": {
+        "description": "Return server and backend health information.",
+        "operationId": "admin_health",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.list`.",
+                "properties": {},
+                "title": "NotebookListInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Health check"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Health check",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/tools/admin.version": {
+      "post": {
+        "description": "Return server version and runtime information.",
+        "operationId": "admin_version",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.list`.",
+                "properties": {},
+                "title": "NotebookListInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Version info"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Version info",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/tools/artifact.cancel": {
+      "post": {
+        "description": "Cancel a running artifact generation task.",
+        "operationId": "artifact_cancel",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `artifact.cancel`.",
+                "properties": {
+                  "confirm": {
+                    "default": false,
+                    "title": "Confirm",
+                    "type": "boolean"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "task_id": {
+                    "minLength": 1,
+                    "title": "Task Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "task_id"
+                ],
+                "title": "ArtifactCancelInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cancel artifact task"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Cancel artifact task",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/tools/artifact.delete": {
+      "post": {
+        "description": "Delete a generated artifact after confirmation.",
+        "operationId": "artifact_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `artifact.delete`.",
+                "properties": {
+                  "artifact_id": {
+                    "minLength": 1,
+                    "title": "Artifact Id",
+                    "type": "string"
+                  },
+                  "confirm": {
+                    "default": false,
+                    "title": "Confirm",
+                    "type": "boolean"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "artifact_id"
+                ],
+                "title": "ArtifactDeleteInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Delete artifact"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Delete artifact",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/tools/artifact.download": {
+      "post": {
+        "description": "Download an artifact into the configured artifacts directory.",
+        "operationId": "artifact_download",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `artifact.download`.",
+                "properties": {
+                  "artifact_id": {
+                    "anyOf": [
+                      {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Artifact Id"
+                  },
+                  "artifact_type": {
+                    "enum": [
+                      "audio",
+                      "video",
+                      "report",
+                      "quiz",
+                      "flashcards",
+                      "mind_map",
+                      "infographic",
+                      "slide_deck",
+                      "data_table"
+                    ],
+                    "title": "Artifact Type",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "output_format": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "json",
+                          "md",
+                          "markdown",
+                          "html",
+                          "pdf",
+                          "pptx"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Output Format"
+                  },
+                  "output_path": {
+                    "minLength": 1,
+                    "title": "Output Path",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "artifact_type",
+                  "output_path"
+                ],
+                "title": "ArtifactDownloadInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Download artifact"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Download artifact",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/tools/artifact.list": {
+      "post": {
+        "description": "List NotebookLM artifacts and locally tracked tasks.",
+        "operationId": "artifact_list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `artifact.list`.",
+                "properties": {
+                  "artifact_type": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "audio",
+                          "video",
+                          "report",
+                          "quiz",
+                          "flashcards",
+                          "mind_map",
+                          "infographic",
+                          "slide_deck",
+                          "data_table"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Artifact Type"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "ArtifactListInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "List artifacts"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "List artifacts",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/tools/artifact.revise_slide": {
+      "post": {
+        "description": "Modify one slide in a generated slide deck.",
+        "operationId": "artifact_revise_slide",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `artifact.revise_slide`.",
+                "properties": {
+                  "artifact_id": {
+                    "minLength": 1,
+                    "title": "Artifact Id",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "maxLength": 4000,
+                    "minLength": 1,
+                    "title": "Prompt",
+                    "type": "string"
+                  },
+                  "slide_index": {
+                    "minimum": 0,
+                    "title": "Slide Index",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "artifact_id",
+                  "slide_index",
+                  "prompt"
+                ],
+                "title": "ReviseSlideInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Revise slide"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Revise slide",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/tools/artifact.status": {
+      "post": {
+        "description": "Poll a NotebookLM artifact task.",
+        "operationId": "artifact_status",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for artifact task status tools.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "task_id": {
+                    "minLength": 1,
+                    "title": "Task Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "task_id"
+                ],
+                "title": "ArtifactStatusInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Get artifact status"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Get artifact status",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/tools/artifact.wait": {
+      "post": {
+        "description": "Wait for an artifact task to complete.",
+        "operationId": "artifact_wait",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `artifact.wait`.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "poll_interval_sec": {
+                    "default": 15,
+                    "minimum": 1,
+                    "title": "Poll Interval Sec",
+                    "type": "integer"
+                  },
+                  "task_id": {
+                    "minLength": 1,
+                    "title": "Task Id",
+                    "type": "string"
+                  },
+                  "timeout_sec": {
+                    "default": 600,
+                    "minimum": 1,
+                    "title": "Timeout Sec",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "task_id"
+                ],
+                "title": "ArtifactWaitInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Wait for artifact"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Wait for artifact",
+        "tags": [
+          "artifacts"
+        ]
+      }
+    },
+    "/tools/chat.ask": {
+      "post": {
+        "description": "Ask a one-shot question against a NotebookLM notebook.",
+        "operationId": "chat_ask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.ask` and `chat.continue`.",
+                "properties": {
+                  "conversation_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Conversation Id"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "question": {
+                    "minLength": 1,
+                    "title": "Question",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "question"
+                ],
+                "title": "ChatAskInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Ask notebook"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Ask notebook",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/chat.continue": {
+      "post": {
+        "description": "Continue a NotebookLM conversation.",
+        "operationId": "chat_continue",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.ask` and `chat.continue`.",
+                "properties": {
+                  "conversation_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Conversation Id"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "question": {
+                    "minLength": 1,
+                    "title": "Question",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "question"
+                ],
+                "title": "ChatAskInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Continue conversation"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Continue conversation",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/chat.conversation_start": {
+      "post": {
+        "description": "Start or identify a NotebookLM conversation.",
+        "operationId": "chat_conversation_start",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.conversation_start`.",
+                "properties": {
+                  "initial_question": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Initial Question"
+                  },
+                  "name": {
+                    "default": "NotebookLM conversation",
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "ConversationStartInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Start conversation"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Start conversation",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/chat.history": {
+      "post": {
+        "description": "Get NotebookLM conversation history.",
+        "operationId": "chat_history",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.history`.",
+                "properties": {
+                  "conversation_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Conversation Id"
+                  },
+                  "limit": {
+                    "default": 100,
+                    "maximum": 500,
+                    "minimum": 1,
+                    "title": "Limit",
+                    "type": "integer"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "ChatHistoryInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Get chat history"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Get chat history",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/chat.list_notes": {
+      "post": {
+        "description": "List saved NotebookLM notes.",
+        "operationId": "chat_list_notes",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.list_notes`.",
+                "properties": {
+                  "limit": {
+                    "default": 100,
+                    "maximum": 500,
+                    "minimum": 1,
+                    "title": "Limit",
+                    "type": "integer"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "ListNotesInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "List notebook notes"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "List notebook notes",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/chat.query": {
+      "post": {
+        "description": "Alias for asking a one-shot question against a NotebookLM notebook.",
+        "operationId": "chat_query",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.ask` and `chat.continue`.",
+                "properties": {
+                  "conversation_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Conversation Id"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "question": {
+                    "minLength": 1,
+                    "title": "Question",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "question"
+                ],
+                "title": "ChatAskInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Query notebook"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Query notebook",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/chat.save_note": {
+      "post": {
+        "description": "Alias for saving content as a NotebookLM note.",
+        "operationId": "chat_save_note",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.save_to_notes`.",
+                "properties": {
+                  "content": {
+                    "minLength": 1,
+                    "title": "Content",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "title": "Title",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "title",
+                  "content"
+                ],
+                "title": "SaveToNotesInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Save notebook note"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Save notebook note",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/chat.save_to_notes": {
+      "post": {
+        "description": "Save a chat answer or drafted content as a NotebookLM note.",
+        "operationId": "chat_save_to_notes",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.save_to_notes`.",
+                "properties": {
+                  "content": {
+                    "minLength": 1,
+                    "title": "Content",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "title": "Title",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "title",
+                  "content"
+                ],
+                "title": "SaveToNotesInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Save answer to notes"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Save answer to notes",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/chat.stream_query": {
+      "post": {
+        "description": "Run a query through the NotebookLM chat backend and return one result.",
+        "operationId": "chat_stream_query",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `chat.ask` and `chat.continue`.",
+                "properties": {
+                  "conversation_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Conversation Id"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "question": {
+                    "minLength": 1,
+                    "title": "Question",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "question"
+                ],
+                "title": "ChatAskInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stream query notebook"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Stream query notebook",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/tools/fetch": {
+      "post": {
+        "description": "Return a full record by ID with id, title, content, and metadata.",
+        "operationId": "fetch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for ChatGPT-compatible `fetch`.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "title": "Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "title": "FetchInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "content": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "metadata": {
+                      "type": "object"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "content",
+                    "metadata"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Fetch NotebookLM record"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Fetch NotebookLM record",
+        "tags": [
+          "compatibility"
+        ]
+      }
+    },
+    "/tools/generate.audio_overview": {
+      "post": {
+        "description": "Generate a NotebookLM audio overview and return a task id.",
+        "operationId": "generate_audio_overview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `generate.audio_overview`.",
+                "properties": {
+                  "audio_format": {
+                    "default": "deep_dive",
+                    "enum": [
+                      "deep_dive",
+                      "brief",
+                      "critique",
+                      "debate"
+                    ],
+                    "title": "Audio Format",
+                    "type": "string"
+                  },
+                  "audio_length": {
+                    "default": "default",
+                    "enum": [
+                      "short",
+                      "default",
+                      "long"
+                    ],
+                    "title": "Audio Length",
+                    "type": "string"
+                  },
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "language": {
+                    "default": "en",
+                    "minLength": 1,
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "AudioOverviewInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate audio overview"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate audio overview",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.cinematic_video": {
+      "post": {
+        "description": "Generate a cinematic video and return a task id.",
+        "operationId": "generate_cinematic_video",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `generate.cinematic_video`.",
+                "properties": {
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "language": {
+                    "default": "en",
+                    "minLength": 1,
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "CinematicVideoInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate cinematic video"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate cinematic video",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.data_table": {
+      "post": {
+        "description": "Generate a data table and return a task id.",
+        "operationId": "generate_data_table",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `generate.data_table`.",
+                "properties": {
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "language": {
+                    "default": "en",
+                    "minLength": 1,
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "DataTableInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate data table"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate data table",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.flashcards": {
+      "post": {
+        "description": "Generate flashcards and return a task id.",
+        "operationId": "generate_flashcards",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input shared by quiz and flashcards tools.",
+                "properties": {
+                  "difficulty": {
+                    "default": "medium",
+                    "enum": [
+                      "easy",
+                      "medium",
+                      "hard"
+                    ],
+                    "title": "Difficulty",
+                    "type": "string"
+                  },
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "default": "standard",
+                    "enum": [
+                      "fewer",
+                      "standard",
+                      "more"
+                    ],
+                    "title": "Quantity",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "QuizLikeInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate flashcards"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate flashcards",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.infographic": {
+      "post": {
+        "description": "Generate an infographic and return a task id.",
+        "operationId": "generate_infographic",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `generate.infographic`.",
+                "properties": {
+                  "detail_level": {
+                    "default": "standard",
+                    "enum": [
+                      "concise",
+                      "standard",
+                      "detailed"
+                    ],
+                    "title": "Detail Level",
+                    "type": "string"
+                  },
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "language": {
+                    "default": "en",
+                    "minLength": 1,
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "orientation": {
+                    "default": "landscape",
+                    "enum": [
+                      "landscape",
+                      "portrait",
+                      "square"
+                    ],
+                    "title": "Orientation",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "InfographicInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate infographic"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate infographic",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.mind_map": {
+      "post": {
+        "description": "Generate a NotebookLM mind map and return a task id.",
+        "operationId": "generate_mind_map",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `generate.mind_map`.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "MindMapInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate mind map"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate mind map",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.quiz": {
+      "post": {
+        "description": "Generate a quiz and return a task id.",
+        "operationId": "generate_quiz",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input shared by quiz and flashcards tools.",
+                "properties": {
+                  "difficulty": {
+                    "default": "medium",
+                    "enum": [
+                      "easy",
+                      "medium",
+                      "hard"
+                    ],
+                    "title": "Difficulty",
+                    "type": "string"
+                  },
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "default": "standard",
+                    "enum": [
+                      "fewer",
+                      "standard",
+                      "more"
+                    ],
+                    "title": "Quantity",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "QuizLikeInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate quiz"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate quiz",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.report": {
+      "post": {
+        "description": "Generate a briefing, study guide, blog post, or custom report.",
+        "operationId": "generate_report",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `generate.report`.",
+                "properties": {
+                  "custom_prompt": {
+                    "anyOf": [
+                      {
+                        "maxLength": 8000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Custom Prompt"
+                  },
+                  "extra_instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Extra Instructions"
+                  },
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "language": {
+                    "default": "en",
+                    "minLength": 1,
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "report_format": {
+                    "default": "briefing_doc",
+                    "enum": [
+                      "briefing_doc",
+                      "study_guide",
+                      "blog_post",
+                      "custom"
+                    ],
+                    "title": "Report Format",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "ReportInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate report"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate report",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.slide_deck": {
+      "post": {
+        "description": "Generate a PDF or PPTX slide deck and return a task id.",
+        "operationId": "generate_slide_deck",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `generate.slide_deck`.",
+                "properties": {
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "language": {
+                    "default": "en",
+                    "minLength": 1,
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "slide_format": {
+                    "default": "detailed_deck",
+                    "enum": [
+                      "detailed_deck",
+                      "presenter_slides"
+                    ],
+                    "title": "Slide Format",
+                    "type": "string"
+                  },
+                  "slide_length": {
+                    "default": "default",
+                    "enum": [
+                      "default",
+                      "short"
+                    ],
+                    "title": "Slide Length",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "SlideDeckInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate slide deck"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate slide deck",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/generate.video_overview": {
+      "post": {
+        "description": "Generate a NotebookLM video overview and return a task id.",
+        "operationId": "generate_video_overview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `generate.video_overview`.",
+                "properties": {
+                  "instructions": {
+                    "anyOf": [
+                      {
+                        "maxLength": 4000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Instructions"
+                  },
+                  "language": {
+                    "default": "en",
+                    "minLength": 1,
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_ids": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Source Ids"
+                  },
+                  "video_format": {
+                    "default": "explainer",
+                    "enum": [
+                      "explainer",
+                      "brief"
+                    ],
+                    "title": "Video Format",
+                    "type": "string"
+                  },
+                  "video_style": {
+                    "default": "auto_select",
+                    "enum": [
+                      "auto_select",
+                      "custom",
+                      "classic",
+                      "whiteboard",
+                      "kawaii",
+                      "anime",
+                      "watercolor",
+                      "retro_print",
+                      "heritage",
+                      "paper_craft"
+                    ],
+                    "title": "Video Style",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "VideoOverviewInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Generate video overview"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Generate video overview",
+        "tags": [
+          "artifact-generation"
+        ]
+      }
+    },
+    "/tools/language.get": {
+      "post": {
+        "description": "Get the current account-global NotebookLM output language.",
+        "operationId": "language_get",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.list`.",
+                "properties": {},
+                "title": "NotebookListInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Get language"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Get language",
+        "tags": [
+          "language"
+        ]
+      }
+    },
+    "/tools/language.list": {
+      "post": {
+        "description": "List supported NotebookLM output languages.",
+        "operationId": "language_list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.list`.",
+                "properties": {},
+                "title": "NotebookListInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "List languages"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "List languages",
+        "tags": [
+          "language"
+        ]
+      }
+    },
+    "/tools/language.set": {
+      "post": {
+        "description": "Set the account-global NotebookLM output language after confirmation.",
+        "operationId": "language_set",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `language.set`.",
+                "properties": {
+                  "confirm": {
+                    "default": false,
+                    "title": "Confirm",
+                    "type": "boolean"
+                  },
+                  "language": {
+                    "minLength": 1,
+                    "title": "Language",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "language"
+                ],
+                "title": "LanguageSetInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Set language"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Set language",
+        "tags": [
+          "language"
+        ]
+      }
+    },
+    "/tools/notebook.create": {
+      "post": {
+        "description": "Create a NotebookLM notebook with a title.",
+        "operationId": "notebook_create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.create`.",
+                "properties": {
+                  "title": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "title": "Title",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title"
+                ],
+                "title": "NotebookCreateInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Create notebook"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Create notebook",
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/tools/notebook.delete": {
+      "post": {
+        "description": "Delete a NotebookLM notebook after explicit confirmation.",
+        "operationId": "notebook_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for destructive notebook tools.",
+                "properties": {
+                  "confirm": {
+                    "default": false,
+                    "title": "Confirm",
+                    "type": "boolean"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "ConfirmNotebookInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Delete notebook"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Delete notebook",
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/tools/notebook.get": {
+      "post": {
+        "description": "Get metadata for one NotebookLM notebook.",
+        "operationId": "notebook_get",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for notebook tools that target one notebook.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "NotebookIdInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Get notebook"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Get notebook",
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/tools/notebook.list": {
+      "post": {
+        "description": "List all notebooks visible to the configured NotebookLM session.",
+        "operationId": "notebook_list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.list`.",
+                "properties": {},
+                "title": "NotebookListInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "List all notebooks"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "List all notebooks",
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/tools/notebook.rename": {
+      "post": {
+        "description": "Rename one NotebookLM notebook.",
+        "operationId": "notebook_rename",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.rename`.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "title": "Title",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "title"
+                ],
+                "title": "NotebookRenameInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Rename notebook"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Rename notebook",
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/tools/notebook.share_invite": {
+      "post": {
+        "description": "Invite a user to view or edit a NotebookLM notebook.",
+        "operationId": "notebook_share_invite",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.share_invite`.",
+                "properties": {
+                  "confirm": {
+                    "default": false,
+                    "title": "Confirm",
+                    "type": "boolean"
+                  },
+                  "email": {
+                    "maxLength": 320,
+                    "minLength": 3,
+                    "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+                    "title": "Email",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "notify": {
+                    "default": true,
+                    "title": "Notify",
+                    "type": "boolean"
+                  },
+                  "role": {
+                    "default": "viewer",
+                    "enum": [
+                      "viewer",
+                      "editor"
+                    ],
+                    "title": "Role",
+                    "type": "string"
+                  },
+                  "welcome_message": {
+                    "default": "",
+                    "maxLength": 1000,
+                    "title": "Welcome Message",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "email"
+                ],
+                "title": "NotebookShareInviteInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invite collaborator"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Invite collaborator",
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/tools/notebook.share_public": {
+      "post": {
+        "description": "Enable or disable public sharing for a NotebookLM notebook.",
+        "operationId": "notebook_share_public",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `notebook.share_public`.",
+                "properties": {
+                  "confirm": {
+                    "default": false,
+                    "title": "Confirm",
+                    "type": "boolean"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "public": {
+                    "title": "Public",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "public"
+                ],
+                "title": "NotebookSharePublicInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Toggle public sharing"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Toggle public sharing",
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/tools/notebook.share_status": {
+      "post": {
+        "description": "Return sharing settings for one NotebookLM notebook.",
+        "operationId": "notebook_share_status",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for notebook tools that target one notebook.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "NotebookIdInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Get sharing status"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Get sharing status",
+        "tags": [
+          "notebooks"
+        ]
+      }
+    },
+    "/tools/research.drive_start": {
+      "post": {
+        "description": "Start a Google Drive research task.",
+        "operationId": "research_drive_start",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for research start tools.",
+                "properties": {
+                  "mode": {
+                    "default": "fast",
+                    "enum": [
+                      "fast",
+                      "deep"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "query": {
+                    "maxLength": 1000,
+                    "minLength": 1,
+                    "title": "Query",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "query"
+                ],
+                "title": "ResearchStartInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Start Drive research"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Start Drive research",
+        "tags": [
+          "research"
+        ]
+      }
+    },
+    "/tools/research.status": {
+      "post": {
+        "description": "Poll the latest research task status.",
+        "operationId": "research_status",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for notebook tools that target one notebook.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "NotebookIdInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Get research status"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Get research status",
+        "tags": [
+          "research"
+        ]
+      }
+    },
+    "/tools/research.wait": {
+      "post": {
+        "description": "Block until a research task finishes or times out.",
+        "operationId": "research_wait",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `research.wait`.",
+                "properties": {
+                  "auto_import": {
+                    "default": false,
+                    "title": "Auto Import",
+                    "type": "boolean"
+                  },
+                  "max_sources": {
+                    "default": 10,
+                    "maximum": 100,
+                    "minimum": 1,
+                    "title": "Max Sources",
+                    "type": "integer"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "poll_interval_sec": {
+                    "default": 15,
+                    "minimum": 1,
+                    "title": "Poll Interval Sec",
+                    "type": "integer"
+                  },
+                  "task_id": {
+                    "anyOf": [
+                      {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Task Id"
+                  },
+                  "timeout_sec": {
+                    "default": 600,
+                    "minimum": 1,
+                    "title": "Timeout Sec",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "ResearchWaitInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Wait for research"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Wait for research",
+        "tags": [
+          "research"
+        ]
+      }
+    },
+    "/tools/research.web_start": {
+      "post": {
+        "description": "Start a web research task with optional auto-import.",
+        "operationId": "research_web_start",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for research start tools.",
+                "properties": {
+                  "mode": {
+                    "default": "fast",
+                    "enum": [
+                      "fast",
+                      "deep"
+                    ],
+                    "title": "Mode",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "query": {
+                    "maxLength": 1000,
+                    "minLength": 1,
+                    "title": "Query",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "query"
+                ],
+                "title": "ResearchStartInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Start web research"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Start web research",
+        "tags": [
+          "research"
+        ]
+      }
+    },
+    "/tools/search": {
+      "post": {
+        "description": "Return IDs of matching notebook and source records.",
+        "operationId": "search",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for ChatGPT-compatible `search`.",
+                "properties": {
+                  "limit": {
+                    "default": 20,
+                    "maximum": 100,
+                    "minimum": 1,
+                    "title": "Limit",
+                    "type": "integer"
+                  },
+                  "query": {
+                    "default": "",
+                    "maxLength": 500,
+                    "title": "Query",
+                    "type": "string"
+                  }
+                },
+                "title": "SearchInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "ids"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Search NotebookLM records"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Search NotebookLM records",
+        "tags": [
+          "compatibility"
+        ]
+      }
+    },
+    "/tools/source.add_file": {
+      "post": {
+        "description": "Upload a PDF, audio, video, image, text, markdown, or docx source.",
+        "operationId": "source_add_file",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `source.add_file`.",
+                "properties": {
+                  "file_path": {
+                    "minLength": 1,
+                    "title": "File Path",
+                    "type": "string"
+                  },
+                  "mime_type": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Mime Type"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "wait": {
+                    "default": false,
+                    "title": "Wait",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "file_path"
+                ],
+                "title": "SourceAddFileInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Add file source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Add file source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.add_gdrive": {
+      "post": {
+        "description": "Add a Google Drive document as a source.",
+        "operationId": "source_add_gdrive",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `source.add_gdrive`.",
+                "properties": {
+                  "file_id": {
+                    "minLength": 1,
+                    "title": "File Id",
+                    "type": "string"
+                  },
+                  "mime_type": {
+                    "default": "application/vnd.google-apps.document",
+                    "title": "Mime Type",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "title": "Title",
+                    "type": "string"
+                  },
+                  "wait": {
+                    "default": false,
+                    "title": "Wait",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "file_id",
+                  "title"
+                ],
+                "title": "SourceAddGDriveInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Add Google Drive source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Add Google Drive source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.add_text": {
+      "post": {
+        "description": "Paste raw text as a source in a NotebookLM notebook.",
+        "operationId": "source_add_text",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `source.add_text`.",
+                "properties": {
+                  "content": {
+                    "minLength": 1,
+                    "title": "Content",
+                    "type": "string"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "title": "Title",
+                    "type": "string"
+                  },
+                  "wait": {
+                    "default": false,
+                    "title": "Wait",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "title",
+                  "content"
+                ],
+                "title": "SourceAddTextInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Add text source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Add text source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.add_url": {
+      "post": {
+        "description": "Add a web URL as a source to a NotebookLM notebook.",
+        "operationId": "source_add_url",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for URL-like source ingestion.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "url": {
+                    "format": "uri",
+                    "maxLength": 2083,
+                    "minLength": 1,
+                    "title": "Url",
+                    "type": "string"
+                  },
+                  "wait": {
+                    "default": false,
+                    "title": "Wait",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "url"
+                ],
+                "title": "SourceAddUrlInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Add URL source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Add URL source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.add_youtube": {
+      "post": {
+        "description": "Add a YouTube URL as a source to a NotebookLM notebook.",
+        "operationId": "source_add_youtube",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for URL-like source ingestion.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "url": {
+                    "format": "uri",
+                    "maxLength": 2083,
+                    "minLength": 1,
+                    "title": "Url",
+                    "type": "string"
+                  },
+                  "wait": {
+                    "default": false,
+                    "title": "Wait",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "url"
+                ],
+                "title": "SourceAddUrlInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Add YouTube source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Add YouTube source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.delete": {
+      "post": {
+        "description": "Alias for removing a source from a NotebookLM notebook.",
+        "operationId": "source_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for destructive source tools.",
+                "properties": {
+                  "confirm": {
+                    "default": false,
+                    "title": "Confirm",
+                    "type": "boolean"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_id": {
+                    "minLength": 1,
+                    "title": "Source Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "source_id"
+                ],
+                "title": "ConfirmSourceInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Delete source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Delete source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.get": {
+      "post": {
+        "description": "Get metadata for one NotebookLM source.",
+        "operationId": "source_get",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for source tools targeting one source.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_id": {
+                    "minLength": 1,
+                    "title": "Source Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "source_id"
+                ],
+                "title": "SourceIdInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Get source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Get source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.get_fulltext": {
+      "post": {
+        "description": "Retrieve indexed full text for one NotebookLM source.",
+        "operationId": "source_get_fulltext",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for source tools targeting one source.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_id": {
+                    "minLength": 1,
+                    "title": "Source Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "source_id"
+                ],
+                "title": "SourceIdInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Get source full text"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Get source full text",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.list": {
+      "post": {
+        "description": "List sources in a NotebookLM notebook.",
+        "operationId": "source_list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for notebook tools that target one notebook.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id"
+                ],
+                "title": "NotebookIdInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "List sources"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "List sources",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.refresh": {
+      "post": {
+        "description": "Re-index one NotebookLM source.",
+        "operationId": "source_refresh",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for source tools targeting one source.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_id": {
+                    "minLength": 1,
+                    "title": "Source Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "source_id"
+                ],
+                "title": "SourceIdInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Refresh source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Refresh source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.remove": {
+      "post": {
+        "description": "Remove a source from a NotebookLM notebook after confirmation.",
+        "operationId": "source_remove",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for destructive source tools.",
+                "properties": {
+                  "confirm": {
+                    "default": false,
+                    "title": "Confirm",
+                    "type": "boolean"
+                  },
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "source_id": {
+                    "minLength": 1,
+                    "title": "Source Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "source_id"
+                ],
+                "title": "ConfirmSourceInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Remove source"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Remove source",
+        "tags": [
+          "sources"
+        ]
+      }
+    },
+    "/tools/source.wait": {
+      "post": {
+        "description": "Wait until one NotebookLM source leaves the indexing state.",
+        "operationId": "source_wait",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Input for `source.wait`.",
+                "properties": {
+                  "notebook_id": {
+                    "minLength": 1,
+                    "title": "Notebook Id",
+                    "type": "string"
+                  },
+                  "poll_interval_sec": {
+                    "default": 5,
+                    "minimum": 1,
+                    "title": "Poll Interval Sec",
+                    "type": "integer"
+                  },
+                  "source_id": {
+                    "minLength": 1,
+                    "title": "Source Id",
+                    "type": "string"
+                  },
+                  "timeout_sec": {
+                    "default": 300,
+                    "minimum": 1,
+                    "title": "Timeout Sec",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "notebook_id",
+                  "source_id"
+                ],
+                "title": "SourceWaitInput",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Wait for source indexing"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Backend error"
+          }
+        },
+        "summary": "Wait for source indexing",
+        "tags": [
+          "sources"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "NotebookLM MCP Server",
+      "url": "{base_url}"
+    }
+  ]
+}

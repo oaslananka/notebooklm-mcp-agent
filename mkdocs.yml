@@ -1,0 +1,69 @@
+site_name: NotebookLM MCP Agent
+site_description: MCP server and CLI for NotebookLM workflows.
+site_url: https://oaslananka.github.io/notebooklm-mcp-agent/
+site_author: oaslananka
+repo_url: https://github.com/oaslananka/notebooklm-mcp-agent
+repo_name: oaslananka/notebooklm-mcp-agent
+edit_uri: edit/main/docs/
+
+exclude_docs: |
+  /AGENTS.md
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Install: install.md
+  - Quickstart: quickstart.md
+  - Configuration: configuration.md
+  - Clients:
+      - ChatGPT: clients/chatgpt.md
+      - Claude Desktop: clients/claude-desktop.md
+      - Cursor: clients/cursor.md
+      - VS Code: clients/vscode.md
+  - Tools:
+      - Overview: tools/index.md
+      - Catalog: tools/catalog.md
+      - Notebooks: tools/notebooks.md
+      - Sources: tools/sources.md
+      - Chat: tools/chat.md
+      - Research: tools/research.md
+      - Artifacts: tools/artifacts.md
+      - Language: tools/language.md
+      - Admin: tools/admin.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Principles: architecture/principles.md
+      - ADRs: architecture/adr/index.md
+  - Migrating:
+      - From Prior Package: migrating/from-prior-package.md
+  - Security:
+      - Threat Model: security/threat-model.md
+      - Third-Party Dependencies: security/third-party-dependencies.md
+      - Scorecard: security/scorecard.md
+  - Development:
+      - Setup: development/setup.md
+      - Testing: development/testing.md
+      - Release: development/release.md
+      - Bot Reviewers: development/bot-reviewers.md
+      - CLI Reference: development/cli-reference.md
+  - Release:
+      - Process: release/process.md
+      - Branch Protection: release/branch-protection.md
+  - Troubleshooting: troubleshooting.md
+  - FAQ: faq.md
+  - Glossary: glossary.md

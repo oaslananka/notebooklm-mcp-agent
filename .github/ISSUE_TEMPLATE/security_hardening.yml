@@ -1,0 +1,19 @@
+name: Security hardening
+description: Propose a security improvement that is not a private vulnerability report
+title: "security: "
+labels: ["security"]
+body:
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Describe the control, workflow, or code path.
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: Proposed hardening
+      description: Do not include secrets or exploit details for a private vulnerability.
+    validations:
+      required: true

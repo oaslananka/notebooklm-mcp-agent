@@ -1,0 +1,3 @@
+[codespell]
+skip = .git,uv.lock,dist,build,site,.venv
+ignore-words-list = pypi

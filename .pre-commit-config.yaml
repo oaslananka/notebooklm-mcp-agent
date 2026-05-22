@@ -1,0 +1,61 @@
+ci:
+  # These hooks use the local uv environment; GitHub Actions enforces the same gates.
+  skip:
+    - mypy
+    - yamllint
+    - codespell
+    - owner-refs
+    - forbidden-terms
+    - config-docs
+    - no-secrets
+    - vulture
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.13
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: uv run mypy src tests
+        language: system
+        pass_filenames: false
+      - id: yamllint
+        name: yamllint
+        entry: uv run yamllint .github/workflows .github/dependabot.yml Taskfile.yml mkdocs.yml .pre-commit-config.yaml .yamllint.yaml .markdownlint.yaml
+        language: system
+        pass_filenames: false
+      - id: codespell
+        name: codespell
+        entry: uv run codespell
+        language: system
+        pass_filenames: false
+      - id: owner-refs
+        name: owner refs
+        entry: uv run python scripts/check_owner_refs.py
+        language: system
+        pass_filenames: false
+      - id: forbidden-terms
+        name: forbidden terms
+        entry: uv run python scripts/check_forbidden_terms.py
+        language: system
+        pass_filenames: false
+      - id: config-docs
+        name: config docs
+        entry: uv run python scripts/check_config_docs.py
+        language: system
+        pass_filenames: false
+      - id: no-secrets
+        name: no secrets
+        entry: uv run python scripts/check_no_secrets.py
+        language: system
+        pass_filenames: false
+      - id: vulture
+        name: vulture
+        entry: uv run vulture src tests scripts --min-confidence 90
+        language: system
+        pass_filenames: false

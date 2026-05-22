@@ -1,0 +1,120 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      confirm_publish:
+        description: Type notebooklm-mcp-agent to publish packages.
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  UV_VERSION: "0.11.15"
+
+jobs:
+  build-check:
+    name: Publish / build check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.11"
+      - name: Install uv
+        run: python -m pip install "uv==${UV_VERSION}"
+      - name: Install dependencies
+        run: uv sync --locked --extra dev --extra browser
+      - name: Build distributions
+        run: uv run python -m build
+      - name: Smoke install wheel
+        run: |
+          python -m venv /tmp/notebooklm-agent-publish-smoke
+          /tmp/notebooklm-agent-publish-smoke/bin/python -m pip install dist/*.whl
+          /tmp/notebooklm-agent-publish-smoke/bin/notebooklm-agent --version
+          /tmp/notebooklm-agent-publish-smoke/bin/notebooklm-agent doctor --offline
+      - name: Build container image
+        run: docker build -f deploy/Dockerfile -t ghcr.io/oaslananka/notebooklm-mcp-agent:dry-run .
+      - name: Generate SBOM and checksums
+        run: |
+          uv run cyclonedx-py environment -o dist/notebooklm-mcp-agent.sbom.json
+          python scripts/generate_checksums.py dist
+      - name: Verify release readiness
+        run: uv run python scripts/check_release_ready.py
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: publish-dry-run-artifacts
+          path: dist/
+
+  publish-pypi:
+    name: Publish / PyPI
+    if: >-
+      ${{
+        github.event_name == 'release' ||
+        (github.event_name == 'workflow_dispatch' && inputs.confirm_publish == 'notebooklm-mcp-agent')
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build-check
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.11"
+      - name: Install uv
+        run: python -m pip install "uv==${UV_VERSION}"
+      - name: Build
+        run: |
+          uv sync --locked --extra dev --extra browser
+          uv run python -m build
+      - name: Publish to PyPI
+        run: uv publish --trusted-publishing always dist/*
+
+  publish-ghcr:
+    name: Publish / GHCR
+    if: >-
+      ${{
+        github.event_name == 'release' ||
+        (github.event_name == 'workflow_dispatch' && inputs.confirm_publish == 'notebooklm-mcp-agent')
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build-check
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - name: Login to GHCR
+        env:
+          GHCR_ACTOR: ${{ github.actor }}
+          GHCR_TOKEN: ${{ github.token }}
+        run: echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_ACTOR" --password-stdin
+      - name: Build and push image
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
+        run: |
+          docker build -f deploy/Dockerfile -t "ghcr.io/oaslananka/notebooklm-mcp-agent:${IMAGE_TAG}" .
+          docker push "ghcr.io/oaslananka/notebooklm-mcp-agent:${IMAGE_TAG}"

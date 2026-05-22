@@ -1,0 +1,57 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":semanticCommits",
+    ":dependencyDashboard"
+  ],
+  "timezone": "Europe/Istanbul",
+  "labels": ["dependencies"],
+  "assignees": ["oaslananka"],
+  "reviewers": ["oaslananka"],
+  "prHourlyLimit": 3,
+  "prConcurrentLimit": 6,
+  "rangeStrategy": "auto",
+  "minimumReleaseAge": "3 days",
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  },
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "labels": ["dependencies", "breaking-change"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "pinDigests": true,
+      "automerge": false,
+      "labels": ["dependencies", "ci"]
+    },
+    {
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "pinDigests": true,
+      "automerge": false,
+      "labels": ["dependencies", "container"]
+    },
+    {
+      "matchManagers": ["npm", "pnpm"],
+      "groupName": "node dependencies"
+    },
+    {
+      "matchManagers": ["pep621", "uv"],
+      "groupName": "python dependencies"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  }
+}

@@ -1,0 +1,1157 @@
+"""Async NotebookLM backend wrapper."""
+
+from __future__ import annotations
+
+import asyncio
+import inspect
+import os
+import stat
+from collections.abc import AsyncIterable, Awaitable, Callable, Iterator, Mapping
+from contextlib import contextmanager, suppress
+from dataclasses import asdict, dataclass, is_dataclass
+from itertools import islice
+from pathlib import Path
+from typing import Any, Literal, TypeVar
+
+from notebooklm import NotebookLMClient
+from notebooklm.paths import get_storage_path
+from notebooklm.rpc.types import (
+    AudioFormat,
+    AudioLength,
+    InfographicDetail,
+    InfographicOrientation,
+    QuizDifficulty,
+    QuizQuantity,
+    ReportFormat,
+    SharePermission,
+    SlideDeckFormat,
+    SlideDeckLength,
+    VideoFormat,
+    VideoStyle,
+)
+
+from notebooklm_mcp_agent.backend.exceptions import (
+    BackendAuthError,
+    BackendError,
+    BackendValidationError,
+    map_backend_exception,
+)
+from notebooklm_mcp_agent.backend.retry import SleepCallback, is_retryable_exception, run_with_retry
+from notebooklm_mcp_agent.config import Settings
+
+T = TypeVar("T")
+ClientFactory = Callable[[Settings], Awaitable[Any]]
+_AUTH_ENV_LOCK = asyncio.Lock()
+DEFAULT_NOTEBOOKLM_AUTH_FILE = Path("~/.config/notebooklm-agent/notebooklm_auth.json").expanduser()
+ARTIFACT_DOWNLOAD_METHODS = {
+    "audio": "download_audio",
+    "video": "download_video",
+    "infographic": "download_infographic",
+    "slide_deck": "download_slide_deck",
+    "report": "download_report",
+    "mind_map": "download_mind_map",
+    "data_table": "download_data_table",
+    "quiz": "download_quiz",
+    "flashcards": "download_flashcards",
+}
+
+ARTIFACT_OUTPUT_FORMATS = {
+    "quiz": {"json", "markdown", "html"},
+    "flashcards": {"json", "markdown", "html"},
+    "slide_deck": {"pdf", "pptx"},
+}
+NOTEBOOK_ID_KEYS = ("id", "notebook_id", "project_id")
+SOURCE_COUNT_ALIASES = (
+    "sources_count",
+    "source_count",
+    "sourcesCount",
+    "sourceCount",
+    "document_count",
+    "documentCount",
+    "documents_count",
+    "documentsCount",
+    "num_sources",
+    "numSources",
+)
+
+
+def _normalize_output_format(output_format: str | None) -> str | None:
+    if output_format == "md":
+        return "markdown"
+    return output_format
+
+
+def _notebooklm_default_auth_file() -> Path:
+    """Return notebooklm-py's active profile storage path."""
+    storage_path: Path = get_storage_path()
+    return storage_path
+
+
+AuthFileState = Literal["missing", "readable", "unreadable"]
+
+
+def _auth_file_state(path: Path) -> AuthFileState:
+    try:
+        mode = path.stat().st_mode
+    except FileNotFoundError:
+        return "missing"
+    except OSError:
+        return "unreadable"
+    if not stat.S_ISREG(mode):
+        return "unreadable"
+    return "readable" if os.access(path, os.R_OK) else "unreadable"
+
+
+def _newest_existing_auth_file(*paths: Path) -> Path | None:
+    newest: Path | None = None
+    newest_mtime = float("-inf")
+    for path in paths:
+        if _auth_file_state(path) != "readable":
+            continue
+        try:
+            mtime = path.stat().st_mtime
+        except OSError:
+            continue
+        if mtime > newest_mtime:
+            newest_mtime = mtime
+            newest = path
+    return newest
+
+
+def _raise_unreadable_auth_file(path: Path) -> None:
+    raise BackendAuthError(
+        "NotebookLM auth file is not readable by the server process.",
+        error_code=-32002,
+        data={"auth_source": "file", "path": str(path)},
+    )
+
+
+@dataclass(frozen=True)
+class AuthSource:
+    """Resolved NotebookLM authentication source."""
+
+    kind: Literal["env_json", "file", "default"]
+    value: str
+
+
+def resolve_auth_source(settings: Settings) -> AuthSource:
+    """Resolve NotebookLM auth JSON or storage file configuration."""
+    if settings.notebooklm_auth_json is not None:
+        auth_json = settings.notebooklm_auth_json.get_secret_value().strip()
+        if auth_json:
+            return AuthSource(kind="env_json", value=auth_json)
+
+    auth_file = settings.notebooklm_auth_file.expanduser()
+    if auth_file == DEFAULT_NOTEBOOKLM_AUTH_FILE:
+        notebooklm_default_auth_file = _notebooklm_default_auth_file()
+        newest_auth_file = _newest_existing_auth_file(notebooklm_default_auth_file, auth_file)
+        if newest_auth_file is not None:
+            return AuthSource(kind="file", value=str(newest_auth_file))
+        for candidate in (notebooklm_default_auth_file, auth_file):
+            if _auth_file_state(candidate) == "unreadable":
+                _raise_unreadable_auth_file(candidate)
+        return AuthSource(kind="default", value=str(notebooklm_default_auth_file))
+    auth_file_state = _auth_file_state(auth_file)
+    if auth_file_state == "readable":
+        return AuthSource(kind="file", value=str(auth_file))
+    if auth_file_state == "unreadable":
+        _raise_unreadable_auth_file(auth_file)
+    raise BackendAuthError(
+        "NotebookLM auth file not found.",
+        error_code=-32002,
+        data={"auth_source": "file"},
+    )
+
+
+@contextmanager
+def _temporary_env(name: str, value: str) -> Iterator[None]:
+    previous = os.environ.get(name)
+    os.environ[name] = value
+    try:
+        yield
+    finally:
+        if previous is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = previous
+
+
+def _enum_member(enum_type: Any, value: str | None) -> Any:
+    if value is None:
+        return None
+    member = enum_type.__members__.get(value.upper())
+    if member is None:
+        raise BackendValidationError(
+            "Unsupported NotebookLM option.",
+            error_code=-32602,
+            data={"enum": getattr(enum_type, "__name__", str(enum_type)), "value": value},
+        )
+    return member
+
+
+async def create_notebooklm_client(settings: Settings, *, timeout: float = 30.0) -> Any:
+    """Create an unopened notebooklm-py client from configured auth."""
+    auth_source = resolve_auth_source(settings)
+    if auth_source.kind == "env_json":
+        async with _AUTH_ENV_LOCK:
+            with _temporary_env("NOTEBOOKLM_AUTH_JSON", auth_source.value):
+                return await NotebookLMClient.from_storage(path=None, timeout=timeout)
+    if auth_source.kind == "default":
+        return await NotebookLMClient.from_storage(path=None, timeout=timeout)
+    return await NotebookLMClient.from_storage(path=auth_source.value, timeout=timeout)
+
+
+async def _limit_notes_result(notes: Any, *, limit: int) -> Any:
+    if isinstance(notes, list):
+        return notes[:limit]
+    if isinstance(notes, tuple):
+        return list(notes[:limit])
+    if isinstance(notes, AsyncIterable):
+        limited: list[Any] = []
+        async for note in notes:
+            limited.append(note)
+            if len(limited) >= limit:
+                break
+        return limited
+    try:
+        return list(islice(notes, limit))
+    except TypeError:
+        return notes
+
+
+async def _list_notes_compat(client: Any, notebook_id: str, *, limit: int) -> Any:
+    """Call notebooklm-py note listing across versions with and without `limit`."""
+    if limit < 0:
+        raise BackendValidationError(
+            "Invalid notes limit.",
+            error_code=-32602,
+            data={"limit": limit},
+        )
+    if limit == 0:
+        return []
+    list_notes = client.notes.list
+    try:
+        signature = inspect.signature(list_notes)
+    except (TypeError, ValueError):
+        signature = None
+    if signature is not None and "limit" in signature.parameters:
+        result = await list_notes(notebook_id, limit=limit)
+    else:
+        result = await _limit_notes_result(await list_notes(notebook_id), limit=limit)
+    return result
+
+
+def _plain_notebook_metadata(notebook: Any) -> dict[str, Any]:
+    """Convert a notebook metadata object into a shallow, mutable mapping."""
+    if isinstance(notebook, Mapping):
+        return dict(notebook)
+    if is_dataclass(notebook) and not isinstance(notebook, type):
+        data = asdict(notebook)
+        return data if isinstance(data, dict) else {"value": data}
+    model_dump = getattr(notebook, "model_dump", None)
+    if model_dump is not None:
+        try:
+            data = model_dump(mode="json")
+        except TypeError:
+            data = model_dump()
+        if isinstance(data, Mapping):
+            return dict(data)
+    if hasattr(notebook, "__dict__"):
+        return {key: value for key, value in vars(notebook).items() if not key.startswith("_")}
+    return {"value": notebook}
+
+
+def _coerce_source_count(value: Any) -> int | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value if value >= 0 else None
+    if isinstance(value, float):
+        if value.is_integer() and value >= 0:
+            return int(value)
+        return None
+    if isinstance(value, str):
+        stripped = value.strip()
+        if stripped.isdecimal():
+            return int(stripped)
+    return None
+
+
+def _metadata_source_count(metadata: Mapping[str, Any]) -> int | None:
+    saw_zero = False
+    for key in SOURCE_COUNT_ALIASES:
+        if key not in metadata:
+            continue
+        count = _coerce_source_count(metadata[key])
+        if count is None:
+            continue
+        if count > 0:
+            return count
+        saw_zero = True
+    return 0 if saw_zero else None
+
+
+def _metadata_notebook_id(metadata: Mapping[str, Any], notebook: Any) -> str | None:
+    for key in NOTEBOOK_ID_KEYS:
+        item = metadata.get(key)
+        if item is not None and str(item):
+            return str(item)
+    for key in NOTEBOOK_ID_KEYS:
+        item = getattr(notebook, key, None)
+        if item is not None and str(item):
+            return str(item)
+    return None
+
+
+async def _source_count_from_sources(sources: Any) -> int:
+    if isinstance(sources, Mapping):
+        for key in ("sources", "items", "results"):
+            items = sources.get(key)
+            if items is not None:
+                return await _source_count_from_sources(items)
+        return len(sources)
+    if isinstance(sources, (str, bytes)):
+        return 1
+    if isinstance(sources, AsyncIterable):
+        count = 0
+        async for _source in sources:
+            count += 1
+        return count
+    try:
+        return len(sources)
+    except TypeError:
+        return sum(1 for _source in sources)
+
+
+async def _hydrate_notebook_source_count(
+    client: Any,
+    notebook: Any,
+    *,
+    suppress_hydration_errors: bool,
+) -> dict[str, Any]:
+    metadata = _plain_notebook_metadata(notebook)
+    source_count = _metadata_source_count(metadata)
+    if source_count is not None:
+        metadata["sources_count"] = source_count
+    if source_count is not None and source_count > 0:
+        return metadata
+
+    notebook_id = _metadata_notebook_id(metadata, notebook)
+    if notebook_id is None:
+        return metadata
+
+    try:
+        sources = await client.sources.list(notebook_id)
+        metadata["sources_count"] = await _source_count_from_sources(sources)
+    except Exception:
+        if not suppress_hydration_errors:
+            raise
+    return metadata
+
+
+async def _hydrate_notebook_list_source_counts(client: Any, notebooks: Any) -> Any:
+    if isinstance(notebooks, AsyncIterable):
+        hydrated: list[dict[str, Any]] = []
+        async for notebook in notebooks:
+            hydrated.append(
+                await _hydrate_notebook_source_count(
+                    client,
+                    notebook,
+                    suppress_hydration_errors=True,
+                )
+            )
+        return hydrated
+    if isinstance(notebooks, Mapping):
+        items = notebooks.get("notebooks")
+        if items is None:
+            return await _hydrate_notebook_source_count(
+                client,
+                notebooks,
+                suppress_hydration_errors=True,
+            )
+        hydrated_notebooks = await _hydrate_notebook_list_source_counts(client, items)
+        result = dict(notebooks)
+        result["notebooks"] = hydrated_notebooks
+        return result
+    if isinstance(notebooks, (list, tuple, set)):
+        return [
+            await _hydrate_notebook_source_count(
+                client,
+                notebook,
+                suppress_hydration_errors=True,
+            )
+            for notebook in notebooks
+        ]
+    return await _hydrate_notebook_source_count(
+        client,
+        notebooks,
+        suppress_hydration_errors=True,
+    )
+
+
+class NotebookLMBackend:
+    """Thin async wrapper around notebooklm-py with retry and error mapping."""
+
+    def __init__(
+        self,
+        settings: Settings | None = None,
+        *,
+        client_factory: ClientFactory | None = None,
+        retry_wait_strategy: Any | None = None,
+        retry_sleep: SleepCallback | None = None,
+    ) -> None:
+        self.settings = settings or Settings()
+        self._client_factory = client_factory or create_notebooklm_client
+        self._retry_wait_strategy = retry_wait_strategy
+        self._retry_sleep = retry_sleep
+        self._client: Any | None = None
+        self._client_context: Any | None = None
+        self._connect_lock = asyncio.Lock()
+
+    async def __aenter__(self) -> NotebookLMBackend:
+        await self.connect()
+        return self
+
+    async def __aexit__(self, _exc_type: object, _exc_value: object, _traceback: object) -> None:
+        await self.close()
+
+    async def connect(self) -> Any:
+        """Create and enter the underlying notebooklm-py client if needed."""
+        try:
+            return await self._connect_unmapped()
+        except Exception as exc:
+            raise map_backend_exception(exc) from exc
+
+    async def _connect_unmapped(self) -> Any:
+        """Create and enter the underlying client without mapping exceptions."""
+        if self._client is not None:
+            return self._client
+        async with self._connect_lock:
+            if self._client is not None:
+                return self._client
+            context: Any | None = None
+            try:
+                raw_client = await self._client_factory(self.settings)
+                enter = getattr(raw_client, "__aenter__", None)
+                if enter is not None:
+                    context = raw_client
+                    client = await enter()
+                    self._client_context = context
+                    self._client = client
+                else:
+                    self._client = raw_client
+            except Exception as exc:
+                if context is not None:
+                    exit_method = getattr(context, "__aexit__", None)
+                    if exit_method is not None:
+                        with suppress(Exception):
+                            await exit_method(type(exc), exc, exc.__traceback__)
+                self._client = None
+                self._client_context = None
+                raise
+            return self._client
+
+    async def close(self) -> None:
+        """Close the underlying notebooklm-py client if it was opened."""
+        async with self._connect_lock:
+            context = self._client_context
+            self._client = None
+            self._client_context = None
+            if context is not None:
+                exit_method = getattr(context, "__aexit__", None)
+                if exit_method is not None:
+                    with suppress(Exception):
+                        await exit_method(None, None, None)
+
+    async def _call(
+        self,
+        operation_name: str,
+        operation: Callable[[Any], Awaitable[T]],
+        *,
+        retry: bool = True,
+    ) -> T:
+        async def invoke() -> T:
+            try:
+                client = await self._connect_unmapped()
+                return await operation(client)
+            except Exception as exc:
+                if is_retryable_exception(exc):
+                    with suppress(Exception):
+                        await self.close()
+                raise
+
+        try:
+            if not retry:
+                return await invoke()
+            return await run_with_retry(
+                invoke,
+                operation_name=operation_name,
+                wait_strategy=self._retry_wait_strategy,
+                sleep=self._retry_sleep,
+            )
+        except BackendError:
+            raise
+        except Exception as exc:
+            raise map_backend_exception(exc) from exc
+
+    async def list_notebooks(self) -> Any:
+        """List NotebookLM notebooks."""
+
+        async def operation(client: Any) -> Any:
+            notebooks = await client.notebooks.list()
+            return await _hydrate_notebook_list_source_counts(client, notebooks)
+
+        return await self._call("notebook.list", operation)
+
+    async def create_notebook(self, title: str) -> Any:
+        """Create a NotebookLM notebook."""
+        return await self._call(
+            "notebook.create",
+            lambda client: client.notebooks.create(title),
+            retry=False,
+        )
+
+    async def get_notebook(self, notebook_id: str) -> Any:
+        """Get NotebookLM notebook metadata."""
+
+        async def operation(client: Any) -> Any:
+            notebook = await client.notebooks.get(notebook_id)
+            return await _hydrate_notebook_source_count(
+                client,
+                notebook,
+                suppress_hydration_errors=False,
+            )
+
+        return await self._call("notebook.get", operation)
+
+    async def rename_notebook(self, notebook_id: str, title: str) -> Any:
+        """Rename a NotebookLM notebook."""
+        return await self._call(
+            "notebook.rename",
+            lambda client: client.notebooks.rename(notebook_id, title),
+            retry=False,
+        )
+
+    async def delete_notebook(self, notebook_id: str) -> Any:
+        """Delete a NotebookLM notebook."""
+        return await self._call(
+            "notebook.delete",
+            lambda client: client.notebooks.delete(notebook_id),
+            retry=False,
+        )
+
+    async def share_public(self, notebook_id: str, public: bool) -> Any:
+        """Toggle public sharing for a NotebookLM notebook."""
+        return await self._call(
+            "notebook.share_public",
+            lambda client: client.sharing.set_public(notebook_id, public),
+            retry=False,
+        )
+
+    async def share_invite(
+        self,
+        notebook_id: str,
+        email: str,
+        *,
+        role: Literal["viewer", "editor"] = "viewer",
+        notify: bool = True,
+        welcome_message: str = "",
+    ) -> Any:
+        """Invite a user to a NotebookLM notebook."""
+        if role not in {"viewer", "editor"}:
+            raise BackendValidationError(
+                "Notebook sharing role must be viewer or editor.",
+                error_code=-32602,
+                data={"role": role},
+            )
+        permission_by_role = {
+            "viewer": SharePermission.VIEWER,
+            "editor": SharePermission.EDITOR,
+        }
+        return await self._call(
+            "notebook.share_invite",
+            lambda client: client.sharing.add_user(
+                notebook_id,
+                email,
+                permission=permission_by_role[role],
+                notify=notify,
+                welcome_message=welcome_message,
+            ),
+            retry=False,
+        )
+
+    async def share_status(self, notebook_id: str) -> Any:
+        """Get NotebookLM notebook sharing status."""
+        return await self._call(
+            "notebook.share_status",
+            lambda client: client.sharing.get_status(notebook_id),
+        )
+
+    async def list_sources(self, notebook_id: str) -> Any:
+        """List NotebookLM sources in a notebook."""
+        return await self._call(
+            "source.list",
+            lambda client: client.sources.list(notebook_id),
+        )
+
+    async def get_source(self, notebook_id: str, source_id: str) -> Any:
+        """Get a NotebookLM source."""
+        return await self._call(
+            "source.get",
+            lambda client: client.sources.get(notebook_id, source_id),
+        )
+
+    async def get_source_fulltext(self, notebook_id: str, source_id: str) -> Any:
+        """Get full text for a NotebookLM source."""
+        return await self._call(
+            "source.get_fulltext",
+            lambda client: client.sources.get_fulltext(notebook_id, source_id),
+        )
+
+    async def add_url_source(self, notebook_id: str, url: str, *, wait: bool = False) -> Any:
+        """Add a URL source to a NotebookLM notebook."""
+        return await self._call(
+            "source.add_url",
+            lambda client: client.sources.add_url(notebook_id, url, wait=wait),
+            retry=False,
+        )
+
+    async def add_youtube_source(self, notebook_id: str, url: str, *, wait: bool = False) -> Any:
+        """Add a YouTube URL source to a NotebookLM notebook."""
+
+        async def operation(client: Any) -> Any:
+            add_youtube = getattr(client.sources, "add_youtube", None)
+            if add_youtube is not None:
+                return await add_youtube(notebook_id, url, wait=wait)
+            return await client.sources.add_url(notebook_id, url, wait=wait)
+
+        return await self._call("source.add_youtube", operation, retry=False)
+
+    async def add_text_source(
+        self,
+        notebook_id: str,
+        title: str,
+        content: str,
+        *,
+        wait: bool = False,
+    ) -> Any:
+        """Add a pasted-text source to a NotebookLM notebook."""
+        return await self._call(
+            "source.add_text",
+            lambda client: client.sources.add_text(notebook_id, title, content, wait=wait),
+            retry=False,
+        )
+
+    async def add_file_source(
+        self,
+        notebook_id: str,
+        file_path: str | Path,
+        *,
+        mime_type: str | None = None,
+        wait: bool = False,
+    ) -> Any:
+        """Add a file source to a NotebookLM notebook."""
+        return await self._call(
+            "source.add_file",
+            lambda client: client.sources.add_file(
+                notebook_id,
+                file_path,
+                mime_type=mime_type,
+                wait=wait,
+            ),
+            retry=False,
+        )
+
+    async def add_drive_source(
+        self,
+        notebook_id: str,
+        file_id: str,
+        title: str,
+        *,
+        mime_type: str = "application/vnd.google-apps.document",
+        wait: bool = False,
+    ) -> Any:
+        """Add a Google Drive source to a NotebookLM notebook."""
+        return await self._call(
+            "source.add_gdrive",
+            lambda client: client.sources.add_drive(
+                notebook_id,
+                file_id,
+                title,
+                mime_type=mime_type,
+                wait=wait,
+            ),
+            retry=False,
+        )
+
+    async def refresh_source(self, notebook_id: str, source_id: str) -> Any:
+        """Refresh a NotebookLM source."""
+        return await self._call(
+            "source.refresh",
+            lambda client: client.sources.refresh(notebook_id, source_id),
+        )
+
+    async def remove_source(self, notebook_id: str, source_id: str) -> Any:
+        """Remove a NotebookLM source."""
+        return await self._call(
+            "source.remove",
+            lambda client: client.sources.delete(notebook_id, source_id),
+            retry=False,
+        )
+
+    async def ask(
+        self,
+        notebook_id: str,
+        question: str,
+        *,
+        source_ids: list[str] | None = None,
+        conversation_id: str | None = None,
+    ) -> Any:
+        """Ask a one-shot question against a NotebookLM notebook."""
+        return await self._call(
+            "chat.ask",
+            lambda client: client.chat.ask(
+                notebook_id,
+                question,
+                source_ids=source_ids,
+                conversation_id=conversation_id,
+            ),
+            retry=False,
+        )
+
+    async def get_conversation_id(self, notebook_id: str) -> Any:
+        """Return NotebookLM's current conversation id for a notebook."""
+        return await self._call(
+            "chat.conversation_start",
+            lambda client: client.chat.get_conversation_id(notebook_id),
+        )
+
+    async def get_chat_history(
+        self,
+        notebook_id: str,
+        *,
+        limit: int = 100,
+        conversation_id: str | None = None,
+    ) -> Any:
+        """Get chat history for a NotebookLM notebook."""
+        return await self._call(
+            "chat.history",
+            lambda client: client.chat.get_history(
+                notebook_id,
+                limit=limit,
+                conversation_id=conversation_id,
+            ),
+        )
+
+    async def save_note(self, notebook_id: str, title: str, content: str) -> Any:
+        """Save content as a NotebookLM note."""
+        return await self._call(
+            "chat.save_to_notes",
+            lambda client: client.notes.create(notebook_id, title=title, content=content),
+            retry=False,
+        )
+
+    async def list_notes(self, notebook_id: str, *, limit: int = 100) -> Any:
+        """List saved NotebookLM notes for a notebook."""
+        return await self._call(
+            "chat.list_notes",
+            lambda client: _list_notes_compat(client, notebook_id, limit=limit),
+        )
+
+    async def start_research(
+        self,
+        notebook_id: str,
+        query: str,
+        *,
+        source: Literal["web", "drive"] = "web",
+        mode: Literal["fast", "deep"] = "fast",
+    ) -> Any:
+        """Start a NotebookLM research task."""
+        return await self._call(
+            f"research.{source}_start",
+            lambda client: client.research.start(notebook_id, query, source=source, mode=mode),
+            retry=False,
+        )
+
+    async def research_status(self, notebook_id: str) -> Any:
+        """Poll the latest NotebookLM research task for a notebook."""
+        return await self._call(
+            "research.status",
+            lambda client: client.research.poll(notebook_id),
+        )
+
+    async def import_research_sources(
+        self,
+        notebook_id: str,
+        task_id: str,
+        sources: list[dict[str, Any]],
+    ) -> Any:
+        """Import selected research sources into a NotebookLM notebook."""
+        return await self._call(
+            "research.import_sources",
+            lambda client: client.research.import_sources(notebook_id, task_id, sources),
+            retry=False,
+        )
+
+    async def generate_audio_overview(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        language: str = "en",
+        instructions: str | None = None,
+        audio_format: str = "deep_dive",
+        audio_length: str = "default",
+    ) -> Any:
+        """Generate an audio overview artifact."""
+        return await self._call(
+            "generate.audio_overview",
+            lambda client: client.artifacts.generate_audio(
+                notebook_id,
+                source_ids=source_ids,
+                language=language,
+                instructions=instructions,
+                audio_format=_enum_member(AudioFormat, audio_format),
+                audio_length=_enum_member(AudioLength, audio_length),
+            ),
+            retry=False,
+        )
+
+    async def generate_video_overview(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        language: str = "en",
+        instructions: str | None = None,
+        video_format: str = "explainer",
+        video_style: str = "auto_select",
+    ) -> Any:
+        """Generate a video overview artifact."""
+        return await self._call(
+            "generate.video_overview",
+            lambda client: client.artifacts.generate_video(
+                notebook_id,
+                source_ids=source_ids,
+                language=language,
+                instructions=instructions,
+                video_format=_enum_member(VideoFormat, video_format),
+                video_style=_enum_member(VideoStyle, video_style),
+            ),
+            retry=False,
+        )
+
+    async def generate_cinematic_video(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        language: str = "en",
+        instructions: str | None = None,
+    ) -> Any:
+        """Generate a cinematic video artifact via notebooklm-py's video API."""
+        return await self._call(
+            "generate.cinematic_video",
+            lambda client: client.artifacts.generate_video(
+                notebook_id,
+                source_ids=source_ids,
+                language=language,
+                instructions=instructions,
+            ),
+            retry=False,
+        )
+
+    async def generate_slide_deck(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        language: str = "en",
+        instructions: str | None = None,
+        slide_format: str = "detailed_deck",
+        slide_length: str = "default",
+    ) -> Any:
+        """Generate a slide deck artifact."""
+        return await self._call(
+            "generate.slide_deck",
+            lambda client: client.artifacts.generate_slide_deck(
+                notebook_id,
+                source_ids=source_ids,
+                language=language,
+                instructions=instructions,
+                slide_format=_enum_member(SlideDeckFormat, slide_format),
+                slide_length=_enum_member(SlideDeckLength, slide_length),
+            ),
+            retry=False,
+        )
+
+    async def generate_infographic(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        language: str = "en",
+        instructions: str | None = None,
+        orientation: str = "landscape",
+        detail_level: str = "standard",
+    ) -> Any:
+        """Generate an infographic artifact."""
+        return await self._call(
+            "generate.infographic",
+            lambda client: client.artifacts.generate_infographic(
+                notebook_id,
+                source_ids=source_ids,
+                language=language,
+                instructions=instructions,
+                orientation=_enum_member(InfographicOrientation, orientation),
+                detail_level=_enum_member(InfographicDetail, detail_level),
+            ),
+            retry=False,
+        )
+
+    async def generate_quiz(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        instructions: str | None = None,
+        quantity: str = "standard",
+        difficulty: str = "medium",
+    ) -> Any:
+        """Generate a quiz artifact."""
+        return await self._call(
+            "generate.quiz",
+            lambda client: client.artifacts.generate_quiz(
+                notebook_id,
+                source_ids=source_ids,
+                instructions=instructions,
+                quantity=_enum_member(QuizQuantity, quantity),
+                difficulty=_enum_member(QuizDifficulty, difficulty),
+            ),
+            retry=False,
+        )
+
+    async def generate_flashcards(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        instructions: str | None = None,
+        quantity: str = "standard",
+        difficulty: str = "medium",
+    ) -> Any:
+        """Generate flashcard artifacts."""
+        return await self._call(
+            "generate.flashcards",
+            lambda client: client.artifacts.generate_flashcards(
+                notebook_id,
+                source_ids=source_ids,
+                instructions=instructions,
+                quantity=_enum_member(QuizQuantity, quantity),
+                difficulty=_enum_member(QuizDifficulty, difficulty),
+            ),
+            retry=False,
+        )
+
+    async def generate_report(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        language: str = "en",
+        report_format: str = "briefing_doc",
+        custom_prompt: str | None = None,
+        extra_instructions: str | None = None,
+    ) -> Any:
+        """Generate a report artifact."""
+        return await self._call(
+            "generate.report",
+            lambda client: client.artifacts.generate_report(
+                notebook_id,
+                report_format=_enum_member(ReportFormat, report_format),
+                source_ids=source_ids,
+                language=language,
+                custom_prompt=custom_prompt,
+                extra_instructions=extra_instructions,
+            ),
+            retry=False,
+        )
+
+    async def generate_data_table(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+        language: str = "en",
+        instructions: str | None = None,
+    ) -> Any:
+        """Generate a data table artifact."""
+        return await self._call(
+            "generate.data_table",
+            lambda client: client.artifacts.generate_data_table(
+                notebook_id,
+                source_ids=source_ids,
+                language=language,
+                instructions=instructions,
+            ),
+            retry=False,
+        )
+
+    async def generate_mind_map(
+        self,
+        notebook_id: str,
+        *,
+        source_ids: list[str] | None = None,
+    ) -> Any:
+        """Generate a mind map artifact."""
+        return await self._call(
+            "generate.mind_map",
+            lambda client: client.artifacts.generate_mind_map(
+                notebook_id,
+                source_ids=source_ids,
+            ),
+            retry=False,
+        )
+
+    async def artifact_status(self, notebook_id: str, task_id: str) -> Any:
+        """Poll a NotebookLM artifact task."""
+        return await self._call(
+            "artifact.status",
+            lambda client: client.artifacts.poll_status(notebook_id, task_id),
+        )
+
+    async def artifact_wait(
+        self,
+        notebook_id: str,
+        task_id: str,
+        *,
+        initial_interval: float,
+        max_interval: float,
+        timeout: float,
+    ) -> Any:
+        """Wait for a NotebookLM artifact task to complete."""
+        return await self._call(
+            "artifact.wait",
+            lambda client: client.artifacts.wait_for_completion(
+                notebook_id,
+                task_id,
+                initial_interval=initial_interval,
+                max_interval=max_interval,
+                timeout=timeout,
+            ),
+        )
+
+    async def artifact_list(self, notebook_id: str, artifact_type: str | None = None) -> Any:
+        """List NotebookLM artifacts for a notebook."""
+
+        async def operation(client: Any) -> Any:
+            if artifact_type is None:
+                return await client.artifacts.list(notebook_id)
+            from notebooklm.types import ArtifactType  # noqa: PLC0415
+
+            return await client.artifacts.list(notebook_id, ArtifactType(artifact_type))
+
+        return await self._call("artifact.list", operation)
+
+    async def artifact_download(
+        self,
+        notebook_id: str,
+        artifact_type: str,
+        output_path: str,
+        *,
+        artifact_id: str | None = None,
+        output_format: str | None = None,
+    ) -> Any:
+        """Download a NotebookLM artifact to a local path."""
+        if artifact_type not in ARTIFACT_DOWNLOAD_METHODS:
+            raise BackendValidationError(
+                "Unsupported artifact type.",
+                error_code=-32602,
+                data={"artifact_type": artifact_type},
+            )
+        normalized_format = _normalize_output_format(output_format)
+        allowed_formats = ARTIFACT_OUTPUT_FORMATS.get(artifact_type)
+        if normalized_format is not None and normalized_format not in (allowed_formats or set()):
+            raise BackendValidationError(
+                "Unsupported artifact output format.",
+                error_code=-32602,
+                data={"artifact_type": artifact_type, "output_format": output_format},
+            )
+
+        async def operation(client: Any) -> Any:
+            method = getattr(client.artifacts, ARTIFACT_DOWNLOAD_METHODS[artifact_type])
+            if normalized_format is not None:
+                return await method(
+                    notebook_id,
+                    output_path,
+                    artifact_id=artifact_id,
+                    output_format=normalized_format,
+                )
+            return await method(notebook_id, output_path, artifact_id=artifact_id)
+
+        return await self._call("artifact.download", operation)
+
+    async def artifact_delete(self, notebook_id: str, artifact_id: str) -> Any:
+        """Delete a generated NotebookLM artifact when supported by notebooklm-py."""
+
+        async def operation(client: Any) -> Any:
+            method = getattr(client.artifacts, "delete", None)
+            if method is None:
+                raise BackendValidationError(
+                    "Artifact deletion is not supported by the installed notebooklm-py backend.",
+                    error_code=-32602,
+                    data={"artifact_id": artifact_id},
+                )
+            return await method(notebook_id, artifact_id)
+
+        return await self._call("artifact.delete", operation, retry=False)
+
+    async def artifact_cancel(self, notebook_id: str, task_id: str) -> Any:
+        """Cancel a generated NotebookLM artifact task when supported by notebooklm-py."""
+
+        async def operation(client: Any) -> Any:
+            for method_name in ("cancel", "cancel_task"):
+                method = getattr(client.artifacts, method_name, None)
+                if method is not None:
+                    return await method(notebook_id, task_id)
+            raise BackendValidationError(
+                "Artifact cancellation is not supported by the installed notebooklm-py backend.",
+                error_code=-32602,
+                data={"task_id": task_id},
+            )
+
+        return await self._call("artifact.cancel", operation, retry=False)
+
+    async def revise_slide(
+        self,
+        notebook_id: str,
+        artifact_id: str,
+        slide_index: int,
+        prompt: str,
+    ) -> Any:
+        """Revise a slide in a generated slide deck."""
+        return await self._call(
+            "artifact.revise_slide",
+            lambda client: client.artifacts.revise_slide(
+                notebook_id,
+                artifact_id,
+                slide_index,
+                prompt,
+            ),
+            retry=False,
+        )
+
+    async def get_language(self) -> Any:
+        """Get the global NotebookLM output language."""
+        return await self._call(
+            "language.get",
+            lambda client: client.settings.get_output_language(),
+        )
+
+    async def set_language(self, language: str) -> Any:
+        """Set the global NotebookLM output language."""
+        return await self._call(
+            "language.set",
+            lambda client: client.settings.set_output_language(language),
+            retry=False,
+        )

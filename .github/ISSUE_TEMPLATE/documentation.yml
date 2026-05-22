@@ -1,0 +1,19 @@
+name: Documentation
+description: Report missing or stale documentation
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: page
+    attributes:
+      label: Page or section
+      description: Link or name the affected documentation.
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue
+      description: Describe what is missing, stale, or unclear.
+    validations:
+      required: true
