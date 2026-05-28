@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 (2026-05-28)
+
+
+### Bug Fixes
+
+* resolve CVE-2026-48710, update deps, add branch protection, concurrency groups, ADR docs ([ac10eb6](https://github.com/oaslananka/notebooklm-mcp-agent/commit/ac10eb6e7911a7106ffdc2deb3b88007384e5d49))
+
 ## 1.0.0 - 2026-05-19
 
 Initial public release preparation for `notebooklm-mcp-agent`.
