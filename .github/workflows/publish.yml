@@ -23,6 +23,7 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   UV_VERSION: "0.11.15"
+  UV_PYTHON: "3.11"
 
 jobs:
   build-check:
