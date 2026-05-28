@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from fastmcp import FastMCP
-from notebooklm.cli.language import SUPPORTED_LANGUAGES
+from notebooklm.cli.language_cmd import SUPPORTED_LANGUAGES
 
 from notebooklm_mcp_agent.backend.exceptions import BackendValidationError
 from notebooklm_mcp_agent.tools.common import (

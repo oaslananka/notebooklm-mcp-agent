@@ -53,6 +53,10 @@ jobs:
         run: uv run vulture src tests scripts --min-confidence 90
       - name: Unit tests
         run: uv run pytest
+      - name: Docs build
+        run: uv run mkdocs build --strict
+      - name: Docs commands check
+        run: uv run python scripts/check_docs_commands.py
 
   test-matrix:
     name: CI / python ${{ matrix.python-version }}
